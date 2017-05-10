@@ -7,14 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * @author Velizar Ivanov <zivanof@gmail.com>
  */
-class RssFeed extends BaseModel
+class TwitterFeedSource extends BaseModel
 {
     /**
      * The table associated with the model.
      *
      * @var string
      */
-    protected $table = 'rss_feed';
+    protected $table = 'twitter_trend_feed_source';
 
     /**
      * The attributes that are mass assignable.
@@ -22,9 +22,7 @@ class RssFeed extends BaseModel
      * @var array
      */
     protected $fillable = [
-        'title',
-        'description',
-        'link',
-        'publish_time'
+        'woid',
+        'last_build_time'
     ];
 }

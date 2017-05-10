@@ -7,14 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * @author Velizar Ivanov <zivanof@gmail.com>
  */
-class RssFeed extends BaseModel
+class RssFeedSource extends BaseModel
 {
     /**
      * The table associated with the model.
      *
      * @var string
      */
-    protected $table = 'rss_feed';
+    protected $table = 'rss_feed_source';
 
     /**
      * The attributes that are mass assignable.
@@ -25,6 +25,7 @@ class RssFeed extends BaseModel
         'title',
         'description',
         'link',
-        'publish_time'
+        'rss_link',
+        'last_build_time'
     ];
 }
