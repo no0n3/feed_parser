@@ -32,13 +32,6 @@ class RssFeedHandler extends FeedHandler
 
     /**
       param $feed
-      <code>
-      [
-      [
-
-      ]
-      ]
-      </code>
      */
     public function persistFeed(array $feed)
     {
@@ -80,6 +73,16 @@ class RssFeedHandler extends FeedHandler
             $sourceId = $result->id;
         } else if (strtotime($lastBuildTime) < strtotime($blogData['lastBuildTime'])) {
             // update feed
+            $rssFeedSource = RssFeedSource::getOneByUrl($blogUrl);
+
+            if ($rssFeedSource) {
+                $rssFeedSource->title           = $blogData['title'];
+                $rssFeedSource->description     = $blogData['description'];
+                $rssFeedSource->link            = $blogData['link'];
+                $rssFeedSource->last_build_time = $blogData['lastBuildTime'];
+
+                $rssFeedSource->save();
+            }
 
             $addFeed = true;
         }
@@ -93,16 +96,25 @@ class RssFeedHandler extends FeedHandler
             $addedFeedLinks = [];
 
             if (!empty($itemLinks)) {
-                $result = RssFeed::getByUrls($itemLinks);
+                $addedItems = RssFeed::getByUrls($itemLinks);
 
-                foreach ($result as $item) {
+                foreach ($addedItems as $item) {
                     $addedFeedLinks[] = $item->link;
                 }
+            } else {
+                $addedItems = [];
             }
 
             foreach ($blogData['items'] as $item) {
                 if (in_array($item['link'], $addedFeedLinks)) {
                     // feed is already added - sync the feed
+                    if (isset($addedItems[$item['title']])) {
+                        $addedItems[$item['title']]->link         = $item['link'];
+                        $addedItems[$item['title']]->description  = $item['description'];
+                        $addedItems[$item['title']]->publish_time = $item['publish_time'];
+
+                        $addedItems[$item['title']]->save();
+                    }
                 } else {
                     $data = [
                         'source_id'    => $sourceId,

@@ -29,6 +29,11 @@ class RssFeedSource extends BaseModel
         'last_build_time'
     ];
 
+    /**
+     * 
+     * @param string $url The rss feed url.
+     * @return \App\Models\RssFeedSource
+     */
     public static function getOneByUrl($url)
     {
         $result = static::where('rss_link', $url)->first();
