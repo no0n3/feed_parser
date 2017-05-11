@@ -28,4 +28,12 @@ class RssFeedSource extends BaseModel
         'rss_link',
         'last_build_time'
     ];
+
+    public static function getOneByUrl($url)
+    {
+        $result = static::where('rss_link', $url)->first();
+
+        return $result;
+    }
+
 }

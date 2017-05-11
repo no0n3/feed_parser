@@ -22,9 +22,19 @@ class RssFeed extends BaseModel
      * @var array
      */
     protected $fillable = [
+        'source_id',
         'title',
         'description',
         'link',
         'publish_time'
     ];
+
+    public static function getByUrls(array $urls)
+    {
+        $result = \DB::table(static::getTableName())
+            ->whereIn('link', $urls)
+            ->get();
+
+        return $result;
+    }
 }

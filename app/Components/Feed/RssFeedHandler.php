@@ -2,8 +2,8 @@
 
 namespace App\Components\Feed;
 
-use PDO;
-use fp\DBConnection;
+use App\Models\RssFeed;
+use App\Models\RssFeedSource;
 
 /**
  * @author Velizar Ivanov <zivanof@gmail.com>
@@ -11,7 +11,8 @@ use fp\DBConnection;
 class RssFeedHandler extends FeedHandler
 {
 
-    public function loadFeed($data) {
+    public function loadFeed($data)
+    {
         if (!is_array($data)) {
             $data = ['blog_url' => []];
         }
@@ -39,9 +40,81 @@ class RssFeedHandler extends FeedHandler
       ]
       </code>
      */
-    public function persistFeed(array $feed) {
+    public function persistFeed(array $feed)
+    {
         foreach ($feed as $blogUrl => $blogData) {
             $this->syncBlog($blogUrl, $blogData);
+        }
+    }
+
+    public function syncBlog($blogUrl, $blogData)
+    {
+        $lastBuildTime = null;
+        $sourceId = null;
+
+        if ($this->isValidUrl($blogUrl)) {
+            $result = RssFeedSource::getOneByUrl($blogUrl);
+
+            if ($result) {
+                $lastBuildTime = $result->last_build_time;
+                $sourceId = $result->id;
+            }
+        } else {
+            return;
+        }
+
+        $addFeed = false;
+
+        if (null === $lastBuildTime) {
+            $data = [
+                'title'           => $blogData['title'],
+                'description'     => $blogData['description'],
+                'link'            => $blogData['link'],
+                'rss_link'        => $blogUrl,
+                'last_build_time' => $blogData['lastBuildTime'],
+            ];
+
+            $result = RssFeedSource::create($data);
+
+            $addFeed = true;
+            $sourceId = $result->id;
+        } else if (strtotime($lastBuildTime) < strtotime($blogData['lastBuildTime'])) {
+            // update feed
+
+            $addFeed = true;
+        }
+
+        if ($addFeed && is_numeric($sourceId)) {
+            $itemLinks = [];
+            foreach ($blogData['items'] as $item) {
+                $itemLinks[] = $item['link'];
+            }
+
+            $addedFeedLinks = [];
+
+            if (!empty($itemLinks)) {
+                $result = RssFeed::getByUrls($itemLinks);
+
+                foreach ($result as $item) {
+                    $addedFeedLinks[] = $item->link;
+                }
+            }
+
+            foreach ($blogData['items'] as $item) {
+                if (in_array($item['link'], $addedFeedLinks)) {
+                    // feed is already added - sync the feed
+                } else {
+                    $data = [
+                        'source_id'    => $sourceId,
+                        'title'        => $item['title'],
+                        'description'  => $item['description'],
+                        'link'         => $item['link'],
+                        'publish_time' => $item['publish_time'],
+                    ];
+
+                    RssFeed::create($data);
+                }
+            }
         }
     }
 
@@ -50,7 +123,8 @@ class RssFeedHandler extends FeedHandler
      * @param string $url the blog feed url
      * @return array|null Return the parsed blog feed or NULL if someting went wrong
      */
-    public function loadFromUrl($url) {
+    public function loadFromUrl($url)
+    {
         if (false === $this->isValidUrl($url)) {
             return null;
         }
@@ -72,7 +146,8 @@ class RssFeedHandler extends FeedHandler
      * @param string $url the target webpage url
      * @return string the webpage contents
      */
-    private function getContents($url) {
+    private function getContents($url)
+    {
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HEADER, 0);
@@ -88,13 +163,14 @@ class RssFeedHandler extends FeedHandler
      * @param object $channel
      * @return array 
      */
-    private function getFeedData($channel) {
+    private function getFeedData($channel)
+    {
         $data = [
             'title'         => (string) $channel->title,
             'description'   => (string) $channel->description,
             'link'          => (string) $channel->link,
             'lastBuildDate' => (string) $channel->lastBuildDate,
-            'lastBuildTime' => strtotime($channel->lastBuildDate),
+            'lastBuildTime' => $this->generateValidTimeFormat($channel->lastBuildDate),
             'items'         => $this->getItemsData($channel->item)
         ];
 
@@ -110,7 +186,7 @@ class RssFeedHandler extends FeedHandler
                 'title'        => (string) $item->title,
                 'description'  => (string) $item->description,
                 'link'         => (string) $item->link,
-                'publish_time' => $item->pubDate,
+                'publish_time' => $this->generateValidTimeFormat($item->pubDate),
             ];
         }
 
@@ -125,6 +201,13 @@ class RssFeedHandler extends FeedHandler
     private function isValidUrl($url)
     {
         return false === !filter_var($url, FILTER_VALIDATE_URL);
+    }
+
+    private function generateValidTimeFormat($dateStr)
+    {
+        $result = date('Y-m-d H:i:s', strtotime($dateStr));
+
+        return $result;
     }
 
 }
