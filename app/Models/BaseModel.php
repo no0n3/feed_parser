@@ -9,6 +9,10 @@ use Illuminate\Database\Eloquent\Model;
  */
 class BaseModel extends Model
 {
+    /**
+     * Gets the table name of the current model.
+     * @return string the table name
+     */
     public static function getTableName()
     {
         return (new static())->table;

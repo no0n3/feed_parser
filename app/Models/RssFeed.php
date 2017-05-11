@@ -31,10 +31,15 @@ class RssFeed extends BaseModel
 
     public static function getByUrls(array $urls)
     {
-        $result = \DB::table(static::getTableName())
-            ->whereIn('link', $urls)
+        $result = static::whereIn('link', $urls)
             ->get();
 
-        return $result;
+        $indexedResult = [];
+
+        foreach ($result as $item) {
+            $indexedResult[$item->title] = $item;
+        }
+
+        return $indexedResult;
     }
 }
