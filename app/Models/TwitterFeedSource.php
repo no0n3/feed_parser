@@ -25,4 +25,24 @@ class TwitterFeedSource extends BaseModel
         'woid',
         'last_build_time'
     ];
+
+    /**
+     * Gets all feed sources by the given woids.
+     * @param array $woids
+     * @return array
+     */
+    public static function getByWoids(array $woids)
+    {
+        $result = static::whereIn('woid', $woids)
+            ->get();
+
+        $indexedResult = [];
+
+        foreach ($result as $item) {
+            $indexedResult[$item->woid] = $item;
+        }
+
+        return $indexedResult;
+    }
+
 }

@@ -28,4 +28,24 @@ class TwitterFeed extends BaseModel
         'text',
         'publish_time'
     ];
+
+    /**
+     * Gets all feeds by the given tweet ids.
+     * @param array $tweetIds
+     * @return array
+     */
+    public static function getByTweetIds(array $tweetIds)
+    {
+        $result = static::whereIn('tweet_id', $tweetIds)
+            ->get();
+
+        $indexedResult = [];
+
+        foreach ($result as $item) {
+            $indexedResult[$item->tweet_id] = $item;
+        }
+
+        return $indexedResult;
+    }
+
 }
