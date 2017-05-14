@@ -205,6 +205,11 @@ class RssFeedHandler extends FeedHandler
         return $result;
     }
 
+    private function getFullArticleContent($descr)
+    {
+        
+    }
+
     /**
      * Checks if the given url is valid.
      * @param string $url the target url
@@ -213,13 +218,6 @@ class RssFeedHandler extends FeedHandler
     private function isValidUrl($url)
     {
         return false === !filter_var($url, FILTER_VALIDATE_URL);
-    }
-
-    private function generateValidTimeFormat($dateStr)
-    {
-        $result = date('Y-m-d H:i:s', strtotime($dateStr));
-
-        return $result;
     }
 
 }

@@ -22,6 +22,7 @@ class TwitterFeed extends BaseModel
      * @var array
      */
     protected $fillable = [
+        'source_id',
         'tweet_id',
         'author_id',
         'author_name',

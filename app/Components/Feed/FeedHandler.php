@@ -20,4 +20,11 @@ abstract class FeedHandler {
         
     }
 
+    protected function generateValidTimeFormat($dateStr)
+    {
+        $result = date('Y-m-d H:i:s', strtotime($dateStr));
+
+        return $result;
+    }
+
 }
