@@ -2,6 +2,8 @@
 
 namespace App\Components\Feed;
 
+use DOMXPath;
+use DOMDocument;
 use App\Models\RssFeed;
 use App\Models\RssFeedSource;
 
@@ -109,21 +111,22 @@ class RssFeedHandler extends FeedHandler
                 if (in_array($item['link'], $addedFeedLinks)) {
                     // feed is already added - sync the feed
                     if (isset($addedItems[$item['title']])) {
-                        $addedItems[$item['title']]->link         = $item['link'];
-                        $addedItems[$item['title']]->description  = $item['description'];
-                        $addedItems[$item['title']]->publish_time = $item['publish_time'];
+                        $addedItems[$item['title']]->link             = $item['link'];
+                        $addedItems[$item['title']]->description      = $item['description'];
+                        $addedItems[$item['title']]->feed_description = $item['feed_description'];
+                        $addedItems[$item['title']]->publish_time     = $item['publish_time'];
 
                         $addedItems[$item['title']]->save();
                     }
                 } else {
                     $data = [
-                        'source_id'    => $sourceId,
-                        'title'        => $item['title'],
-                        'description'  => $item['description'],
-                        'link'         => $item['link'],
-                        'publish_time' => $item['publish_time'],
+                        'source_id'         => $sourceId,
+                        'title'             => $item['title'],
+                        'feed_description'  => $item['feed_description'],
+                        'description'       => $item['description'],
+                        'link'              => $item['link'],
+                        'publish_time'      => $item['publish_time'],
                     ];
-
                     RssFeed::create($data);
                 }
             }
@@ -194,20 +197,65 @@ class RssFeedHandler extends FeedHandler
         $result = [];
 
         foreach ($items as $k => $item) {
-            $result [] = [
-                'title'        => (string) $item->title,
-                'description'  => (string) $item->description,
-                'link'         => (string) $item->link,
-                'publish_time' => $this->generateValidTimeFormat($item->pubDate),
+            $data = [
+                'title'            => (string) $item->title,
+                'feed_description' => (string) $item->description,
+                'link'             => (string) $item->link,
+                'publish_time'     => $this->generateValidTimeFormat($item->pubDate),
             ];
+
+            $data['description'] = $this->getFullArticleContent(
+                $data['link'],
+                $data['feed_description']
+            );
+
+            $result[] = $data;
         }
 
         return $result;
     }
 
-    private function getFullArticleContent($descr)
+    private function getFullArticleContent($url, $description)
     {
-        
+        $s = file_get_contents($url);
+
+        $dom = new DOMDocument();
+        $dom->loadHTML($s);
+        $xpath = new DOMXpath($dom);
+
+        $pos1 = strpos($description, '<p>');
+        $pos2 = strpos($description, '</p>');
+
+        if (is_numeric($pos1) && is_numeric($pos2)) {
+            $description = trim(substr($description, $pos1 + strlen('<p>'), $pos2 - strlen('</p>')));
+        }
+
+        $pos = strpos($description, '&#8230;read more');
+
+        if (is_numeric($pos)) {
+            $description = trim(substr($description, 0, $pos));
+        }
+        $elements = $xpath->query("//*[contains(., '" . html_entity_decode(strip_tags($description)) . "')]");
+        $newDescr = '';
+
+        if ($elements) {
+            $a = [];
+            foreach ($elements as $e) {
+                $a[] = $e;
+            }
+            if (0 === count($a)) {
+                return $newDescr;
+            }
+            $te = $a[count($a) - 1];
+
+            foreach ($te->parentNode->childNodes as $e) {
+                if (isset($e->tagName) && 'p' === $e->tagName) {
+                    $newDescr .= $e->textContent;
+                }
+            }
+        }
+
+        return $newDescr;
     }
 
     /**

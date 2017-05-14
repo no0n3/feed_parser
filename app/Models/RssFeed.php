@@ -24,6 +24,7 @@ class RssFeed extends BaseModel
     protected $fillable = [
         'source_id',
         'title',
+        'feed_description',
         'description',
         'link',
         'publish_time'
