@@ -17,4 +17,24 @@ class BaseModel extends Model
     {
         return (new static())->table;
     }
+
+    public static function getByIds(array $ids, $select = null, $indexById = true)
+    {
+        $query = static::query();
+
+        if (!empty($select)) {
+            $query->select($select);
+        }
+
+        $result = $query
+            ->whereIn('id', $ids)
+            ->get();
+
+        if ($indexById) {
+            $result = $result->keyBy('id');
+        }
+
+        return $result;
+    }
+
 }
