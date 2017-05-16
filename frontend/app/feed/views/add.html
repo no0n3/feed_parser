@@ -1,0 +1,28 @@
+<div data-ng-if="true === added">
+    <div>Feed source successlly added</div>
+    <div>
+        <button data-ng-click="addAnother()">add another</button>
+        <button data-ng-click="viewAll()">view all</button>
+    </div>
+</div>
+<div data-ng-if="false === added">
+    <div>ADD fs XX</div>
+    <form name="form" novalidate class="simple-form">
+        <div>
+            <select data-ng-model="source.type" ng-options="x for x in types"></select>
+        </div>
+        <div data-ng-if="'type_rss' === source.type">
+            <div>
+                <label>Rss Link: <input type="text" name="rss_link" ng-model="source.rss_link" ng-disabled="loading" required/></label>
+            </div>
+        </div>
+        <div data-ng-if="'type_twitter' === source.type">
+            <div>
+                <label>Woid: <input type="text" name="woid" ng-model="source.woid" ng-disabled="loading" required/></label>
+            </div>
+        </div>
+
+        <button ng-disabled="loading" ng-click="create()">create</button>
+    </form>
+    <div>{{ source | json }}</div>
+</div>
