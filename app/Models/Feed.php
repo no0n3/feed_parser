@@ -10,13 +10,13 @@ use Illuminate\Database\Eloquent\Model;
 class Feed extends BaseModel
 {
 
-    public static function getPagiated($page = 1, $perPage = 20)
+    public static function getPagiated($page = 1, $perPage = BaseModel::DEFAULT_PAGE_SIZE)
     {
         if (!is_numeric($page) || 0 >= $page) {
             $page = 1;
         }
         if (!is_numeric($perPage) || 0 >= $perPage) {
-            $perPage = 20;
+            $perPage = static::DEFAULT_PAGE_SIZE;
         }
         $total = ceil( (RssFeed::query()->count() + TwitterFeed::query()->count()) / $perPage );
 
@@ -59,9 +59,9 @@ class Feed extends BaseModel
         $result = static::formatResult($feedResult);
 
         return [
-            'page' => $page,
+            'page'        => $page,
             'total_pages' => $total,
-            'items' => $result
+            'items'       => $result
         ];
     }
 
@@ -155,8 +155,8 @@ class Feed extends BaseModel
         $resultRss     = isset($data['rss']) ? $data['rss'] : [];
         $resultTwitter = isset($data['twitter']) ? $data['twitter'] : [];
 
-        $rssSources     = isset($data['rss_source']) ? $data['rss_source'] : [];
-        $twitterSources = isset($data['twitter_source']) ? $data['twitter_source'] : [];
+        $rssSources     = isset($data['rss_sources']) ? $data['rss_sources'] : [];
+        $twitterSources = isset($data['twitter_sources']) ? $data['twitter_sources'] : [];
 
         foreach ($resultRss as $item) {
             $result[] = [

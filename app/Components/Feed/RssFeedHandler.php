@@ -33,7 +33,7 @@ class RssFeedHandler extends FeedHandler
     }
 
     /**
-      param $feed
+     * param $feed
      */
     public function persistFeed(array $feed)
     {

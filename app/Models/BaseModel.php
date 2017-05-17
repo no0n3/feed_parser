@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class BaseModel extends Model
 {
+    const DEFAULT_PAGE_SIZE = 20;
+
     /**
      * Gets the table name of the current model.
      * @return string the table name
@@ -31,7 +33,11 @@ class BaseModel extends Model
             ->get();
 
         if ($indexById) {
-            $result = $result->keyBy('id');
+            $a = [];
+            foreach ($result as $i) {
+                $a[$i->id] = $i;
+            }
+            $result = $a;
         }
 
         return $result;
