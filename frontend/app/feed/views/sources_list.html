@@ -5,25 +5,8 @@
     Loading ...
 </div>
 <div data-ng-if="false === loading">
-    <div data-ng-repeat="source in sources" class="feed-item">
-        <div class="feed-item-cont">
-            <div data-ng-if="'type_rss' === source.type">
-                <div><span class="field-title">Title:</span> {{ source.title }}</div>
-                <div><span class="field-title">Link:</span> <a data-ng-href="{{ source.link }}">{{ source.link }}</a></div>
-                <div><span class="field-title">Created At:</span> {{ source.created_at }}</div>
-                <div><span class="field-title">Updated At:</span> {{ source.updated_at }}</div>
-            </div>
-            <div data-ng-if="'type_twitter' === source.type">
-                <div><span class="field-title">Woid:</span> {{ source.woid }}</div>
-                <div><span class="field-title">Created At:</span> {{ source.created_at }}</div>
-                <div><span class="field-title">Updated At:</span> {{ source.updated_at }}</div>
-            </div>
-            <div class="feed-item-btns-cont">
-                <a data-ng-href="#">show all feeds</a>
-                <a data-ng-href="#">edit</a>
-                <a data-ng-href="#">delete</a>
-            </div>
-        </div>
+    <div data-ng-repeat="source in sources" class="feed-item" data-ng-show="!source.deleted">
+        <feed-source-item item="source"></feed-source-item>
     </div>
     <div data-ng-show="1 < total_pages">
         <button data-ng-click="first()">first</button> <button data-ng-click="prev()">prev</button> | {{ page }} of {{ total_pages }} | <button data-ng-click="next()">next</button> <button data-ng-click="last()">last</button>

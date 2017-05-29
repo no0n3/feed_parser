@@ -8,12 +8,23 @@
     FeedSourceListController.$inject = ['$scope', 'siteDomain', '$routeParams', '$controller', 'FeedSourceService'];
 
     function FeedSourceListController($scope, siteDomain, $routeParams, $controller, FeedSourceService) {
-        angular.extend(this, $controller('BaseController', {$scope: $scope}));
+        angular.extend(this, $controller('BaseFeedController', {$scope: $scope}));
 
         $scope.sources = [];
         $scope.loading = true;
         $scope.page = 1;
         $scope.siteDomain = siteDomain;
+
+        $scope.deleteFeedSourceItem = function(data) {
+            console.log('---43')
+            console.log(data)
+            $scope.deleteFeedSource(data)
+                .then(function(resp) {
+                    console.log('---1')
+                }, function() {
+                    console.log('---2')
+                });
+        };
 
         FeedSourceService.getAll({
             page: $routeParams.page

@@ -33,8 +33,12 @@
                 controller: 'FeedSourceListController'
             })
             .when('/feed-source/:type/:id', {
-                templateUrl: 'app/feed/views/add.html',
+                templateUrl: 'app/feed/views/view_source.html',
                 controller: 'FeedSourceViewController'
+            })
+            .when('/feed/:type/:id', {
+                templateUrl: 'app/feed/views/view.html',
+                controller: 'FeedViewController'
             })
             .when('/feed-source/add', {
                 templateUrl: 'app/feed/views/add.html',

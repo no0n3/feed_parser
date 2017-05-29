@@ -5,13 +5,13 @@
         .module('app')
         .controller('FeedViewController', FeedViewController);
 
-    FeedViewController.$inject = ['$scope', 'FeedService'];
+    FeedViewController.$inject = ['$scope', '$routeParams', 'FeedService'];
 
-    function FeedViewController($scope, FeedService) {
+    function FeedViewController($scope, $routeParams, FeedService) {
         $scope.source = {};
         $scope.loading = true;
 
-        FeedService.getAll()
+        FeedService.get($routeParams)
             .then(function(resp) {
                 console.log(resp.data)
                 $scope.source = resp.data.item;

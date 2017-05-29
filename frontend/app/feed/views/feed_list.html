@@ -6,27 +6,7 @@
 </div>
 <div data-ng-if="false === loading">
     <div data-ng-repeat="source in sources" class="feed-item">
-        <div class="feed-item-cont">
-            <div data-ng-if="'type_rss' === source.type">
-                <div><span class="field-title">Id:</span> {{ source.id }}</div>
-                <div><span class="field-title">Title:</span> {{ source.title }}</div>
-                <div><span class="field-title">Link:</span> <a data-ng-href="{{ source.link }}">{{ source.link }}</a></div>
-                <div><span class="field-title">Publish Time:</span> {{ source.publish_time }}</div>
-                <div><span class="field-title">Created At:</span> {{ source.created_at }}</div>
-                <div><span class="field-title">Updated At:</span> {{ source.updated_at }}</div>
-            </div>
-            <div data-ng-if="'type_twitter' === source.type">
-                <div><span class="field-title">Id:</span> {{ source.id }}</div>
-                <div><span class="field-title">Tweet Id:</span> {{ source.tweet_id }}</div>
-                <div><span class="field-title">Link:</span> <a data-ng-href="{{ source.link }}">{{ source.link }}</a></div>
-                <div><span class="field-title">Publish Time:</span> {{ source.publish_time }}</div>
-                <div><span class="field-title">Created At:</span> {{ source.created_at }}</div>
-                <div><span class="field-title">Updated At:</span> {{ source.updated_at }}</div>
-            </div>
-            <div class="feed-item-btns-cont">
-                <a data-ng-href="{{ siteDomain + 'feed-source/' + source.type + '/' + source.source.id }}">view source</a>
-            </div>
-        </div>
+        <feed-item item="source"></feed-item>
     </div>
     <div data-ng-show="1 < total_pages">
         <button data-ng-click="first()">first</button> <button data-ng-click="prev()">prev</button> | {{ page }} of {{ total_pages }} | <button data-ng-click="next()">next</button> <button data-ng-click="last()">last</button>

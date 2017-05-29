@@ -5,21 +5,22 @@
         .module('app', ['ngRoute', 'app.routes', 'app.templates'])
         .run(run);
 
-    run.$inject = ['$rootScope', '$location', '$route', 'siteDomain'];
+    run.$inject = ['$rootScope', '$location', '$route', 'siteDomain', 'authService'];
 
-    function run($rootScope, $location, $route, siteDomain) {
+    function run($rootScope, $location, $route, siteDomain, authService) {
         $rootScope.siteDomain = siteDomain;
 
         $rootScope.$on('$locationChangeStart', function (event, next, current) {
-            console.log('nx ->', $location.path())
-
-            if (-1 !== restricted.indexOf($location.path())) {
-                console.log('RESTRICTED URL')
-            }
+            getLoggedUserData(function(resp) {
+                if (false === resp.logged && isRestrictedPath()) {
+                    $location.path('/login');
+                }
+            });
         });
 
-        var restricted = [
-            
+        var unrestricted = [
+            '/login',
+            '/sign-up'
         ];
 
         $rootScope.$on('$routeChangeStart', function(event) {
@@ -27,5 +28,20 @@
             console.log(arguments)
             console.log(event)
         });
+
+        function getLoggedUserData(callback) {
+            authService.getUserData()
+                .then(function(resp) {
+                    if ('function' === typeof callback) {
+                        callback(resp.data);
+                    }
+                });
+        }
+
+        function isRestrictedPath() {
+            var result = -1 === unrestricted.indexOf($location.path());
+
+            return result;
+        }
     }
 })();
